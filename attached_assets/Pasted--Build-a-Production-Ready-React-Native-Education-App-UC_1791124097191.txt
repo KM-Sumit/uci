@@ -1,0 +1,1475 @@
+# Build a Production-Ready React Native Education App — UCI
+
+You are a senior React Native + backend engineer and UI/UX designer.
+
+Build a complete, production-ready mobile education application named:
+
+**UCI — Government Exam Preparation**
+
+UCI is a coaching institute that helps students prepare for government competitive examinations.
+
+The application must be professionally designed and should feel like a modern premium coaching/education application similar in quality and UX to leading Indian coaching apps.
+
+Do NOT create a simple demo or prototype.
+
+Build a properly structured application with real authentication, real database operations, admin management, secure API communication, dynamic content, proper validation, loading states, error handling, and production-ready architecture.
+
+---
+
+# 1. TECHNOLOGY STACK
+
+Use:
+
+### Mobile App
+- React Native
+- Expo
+- TypeScript
+- Expo Router
+- NativeWind/Tailwind or a clean scalable styling system
+- React Query/TanStack Query for server state
+- Zustand or Context API for local/auth state
+- React Hook Form + Zod for forms
+
+### Backend
+Prefer:
+
+- FastAPI
+- Python
+- PostgreSQL
+- SQLAlchemy
+- Pydantic
+- JWT authentication
+- bcrypt/Argon2 password hashing
+
+If the project architecture requires Node.js, use:
+
+- Node.js
+- Express
+- TypeScript
+- PostgreSQL
+- Prisma
+
+But prefer FastAPI.
+
+### AI
+Use OpenAI API for AI-generated tests.
+
+IMPORTANT:
+
+Never expose the OpenAI API key inside the React Native application.
+
+The mobile application must call our backend.
+
+Backend calls OpenAI.
+
+Architecture:
+
+React Native
+      ↓
+FastAPI
+      ↓
+OpenAI API
+
+Store the API key only in backend environment variables.
+
+Example:
+
+OPENAI_API_KEY=xxxxxxxx
+
+Never hardcode API keys.
+
+---
+
+# 2. APPLICATION BRAND
+
+Application name:
+
+**UCI**
+
+Subtitle:
+
+**Government Exam Preparation**
+
+The design should feel:
+
+- Professional
+- Educational
+- Modern
+- Trustworthy
+- Premium
+- Indian competitive-exam focused
+
+Use a clean coaching-app style UI.
+
+Do NOT copy another company's UI exactly.
+
+Take inspiration from modern education apps but create an original design.
+
+---
+
+# 3. MAIN APPLICATION SECTIONS
+
+Bottom navigation:
+
+1. Home
+2. Courses
+3. Notes
+4. Tests
+5. Profile
+
+Use attractive icons.
+
+The bottom navigation should remain consistent throughout the student application.
+
+---
+
+# 4. AUTHENTICATION
+
+Create a complete authentication system.
+
+Screens:
+
+### Login
+Fields:
+
+- Email / Mobile Number
+- Password
+
+Buttons:
+
+- Login
+- Forgot Password
+- Create Account
+
+### Signup
+
+Fields:
+
+- Full Name
+- Mobile Number
+- Email
+- Password
+- Confirm Password
+
+Validation:
+
+- Name required
+- Valid mobile number
+- Valid email
+- Password minimum length
+- Password confirmation must match
+
+Do NOT hardcode users.
+
+All users must be stored in PostgreSQL.
+
+Passwords must NEVER be stored as plain text.
+
+Use secure password hashing.
+
+---
+
+# 5. AUTHENTICATION SECURITY
+
+Implement:
+
+- JWT access token
+- Refresh token if appropriate
+- Secure token storage
+- Logout
+- Token expiration
+- Protected routes
+- Role-based authorization
+- Admin authorization
+- Input validation
+- Backend validation
+- Password hashing
+- Rate limiting where appropriate
+
+Never trust role information coming from the mobile client.
+
+The backend must verify the user's role.
+
+---
+
+# 6. LOGIN/SIGNUP TESTING
+
+Before considering authentication complete, test:
+
+### Signup
+
+- Valid signup
+- Duplicate email
+- Duplicate phone
+- Invalid email
+- Weak password
+- Password mismatch
+- Empty fields
+
+### Login
+
+- Correct credentials
+- Wrong password
+- Non-existing user
+- Empty fields
+- Expired token
+
+### Logout
+
+After logout:
+
+- Protected screens must not be accessible.
+- Token must be removed securely.
+
+Do NOT use fake authentication.
+
+Do NOT use:
+
+```text
+if(email === "admin@gmail.com")
+```
+
+or:
+
+```text
+password === "123456"
+```
+
+or any hardcoded authentication.
+
+---
+
+# 7. HOME SCREEN
+
+Create a premium dashboard.
+
+Top:
+
+- UCI logo
+- Student name
+- Profile icon
+- Notification icon
+
+Hero section:
+
+Create a horizontal image/banner slider.
+
+Admin must be able to add:
+
+- Banner image
+- Banner title
+- Banner subtitle
+- CTA
+- Optional redirect
+
+Example:
+
+"Prepare for SSC CGL 2026"
+
+"Complete your preparation with UCI"
+
+The slider must come dynamically from backend/database.
+
+Do NOT hardcode banners.
+
+Admin should be able to:
+
+- Add banner
+- Edit banner
+- Delete banner
+- Reorder banner
+- Enable/disable banner
+
+---
+
+# 8. HOME PAGE SECTIONS
+
+Below the banner:
+
+### Continue Learning
+
+Show:
+
+- Course name
+- Progress percentage
+- Last watched lesson
+- Continue button
+
+### Popular Courses
+
+Show course cards:
+
+- Thumbnail
+- Course title
+- Instructor
+- Number of lessons
+- Duration
+- Price/free label if required
+- Enroll button
+
+### Upcoming Tests
+
+Show:
+
+- Test title
+- Subject
+- Number of questions
+- Duration
+- Start date
+
+### Latest Notes
+
+Show recently uploaded notes.
+
+### Upcoming Live Classes
+
+Keep the architecture ready for future live-class functionality.
+
+---
+
+# 9. COURSES SECTION
+
+Create a complete dynamic course system.
+
+Course listing:
+
+Each course should have:
+
+- Thumbnail
+- Course title
+- Description
+- Instructor
+- Category
+- Exam
+- Total lessons
+- Duration
+- Price/free
+- Rating if required
+
+Filters:
+
+- SSC
+- Banking
+- Railway
+- Police
+- UPSC
+- State Government Exams
+- Other exams
+
+---
+
+# 10. COURSE DETAILS
+
+When student opens a course:
+
+Show:
+
+- Course thumbnail
+- Course title
+- Description
+- Instructor
+- Course statistics
+- Chapters
+- Lessons
+
+Example:
+
+Course:
+
+SSC CGL Complete Preparation
+
+Chapter 1:
+Quantitative Aptitude
+
+Lessons:
+
+1. Percentage
+2. Profit & Loss
+3. Ratio
+4. Average
+
+Each lesson can contain:
+
+- Video
+- PDF
+- Text
+- Resources
+
+Track:
+
+- Lesson completion
+- Course progress
+- Last watched lesson
+
+Progress must be stored in database.
+
+---
+
+# 11. ADMIN COURSE MANAGEMENT
+
+Admin must have an admin dashboard.
+
+Admin can:
+
+### Courses
+
+- Create course
+- Edit course
+- Delete course
+- Publish/unpublish course
+- Upload thumbnail
+- Add chapters
+- Delete chapters
+- Add lessons
+- Edit lessons
+- Delete lessons
+- Upload video/PDF resources
+
+Everything must be stored in database.
+
+No hardcoded course data.
+
+---
+
+# 12. NOTES SECTION
+
+Create a dedicated Notes section.
+
+Student can:
+
+- Browse notes
+- Search notes
+- Filter by subject
+- Filter by exam
+- Open notes
+- Download/view PDF
+
+Example categories:
+
+- Mathematics
+- Reasoning
+- English
+- General Knowledge
+- Current Affairs
+- General Science
+- Computer
+- Hindi
+
+---
+
+# 13. ADMIN NOTES MANAGEMENT
+
+Admin can:
+
+- Upload note
+- Add title
+- Add description
+- Select subject
+- Select exam
+- Upload PDF
+- Edit note
+- Delete note
+- Publish/unpublish note
+
+Notes must come from backend.
+
+No hardcoded notes.
+
+---
+
+# 14. TEST SYSTEM — VERY IMPORTANT
+
+Build a complete real test system.
+
+Students should be able to take tests properly.
+
+Test listing:
+
+- Test name
+- Subject
+- Topic
+- Number of questions
+- Duration
+- Difficulty
+- Attempt status
+
+---
+
+# 15. AI TEST GENERATION
+
+Admin should be able to generate tests using AI.
+
+Admin enters:
+
+```text
+Exam:
+SSC CGL
+
+Subject:
+Quantitative Aptitude
+
+Topic:
+Percentage
+
+Number of Questions:
+20
+
+Difficulty:
+Medium
+
+Language:
+English/Hindi
+
+Question Type:
+MCQ
+```
+
+Backend sends a structured request to OpenAI.
+
+The AI must generate questions in structured JSON.
+
+Example:
+
+```json
+{
+  "title": "Percentage Test",
+  "questions": [
+    {
+      "question": "What is 20% of 500?",
+      "options": [
+        "50",
+        "100",
+        "150",
+        "200"
+      ],
+      "correctAnswer": 1,
+      "explanation": "20% of 500 is 100."
+    }
+  ]
+}
+```
+
+IMPORTANT:
+
+Never blindly trust AI output.
+
+Backend must:
+
+1. Validate JSON.
+2. Validate number of questions.
+3. Validate all options.
+4. Validate correct answer.
+5. Remove malformed questions.
+6. Store validated questions in PostgreSQL.
+7. Return test ID.
+
+If OpenAI produces invalid output, handle the error gracefully.
+
+---
+
+# 16. TEST GENERATION PROMPT
+
+Use structured AI output.
+
+The AI should generate:
+
+- Question
+- 4 options
+- Correct answer
+- Explanation
+- Difficulty
+- Topic
+
+Questions must not be duplicated.
+
+The backend should attempt to prevent duplicate questions.
+
+Do not allow the AI to generate arbitrary database fields.
+
+Use Pydantic/Zod validation.
+
+---
+
+# 17. TEST TAKING SCREEN
+
+Student opens a test.
+
+Show:
+
+Top:
+
+```text
+Test Name
+Question 1 / 20
+Timer
+```
+
+Question:
+
+```text
+What is 20% of 500?
+```
+
+Options:
+
+A. 50
+B. 100
+C. 150
+D. 200
+```
+
+Features:
+
+- Next
+- Previous
+- Mark for Review
+- Clear Answer
+- Question Navigator
+- Submit Test
+- Countdown timer
+
+Prevent accidental submission.
+
+Show confirmation:
+
+"Are you sure you want to submit the test?"
+
+---
+
+# 18. TEST TIMER
+
+Timer must work correctly.
+
+Example:
+
+20 questions
+20 minutes
+
+When timer reaches zero:
+
+Automatically submit the test.
+
+Do NOT rely only on mobile device time.
+
+Backend should record:
+
+- Test start time
+- Test end time
+- Submission time
+
+This prevents cheating by changing device time.
+
+---
+
+# 19. TEST RESULT
+
+After submission calculate:
+
+- Total questions
+- Attempted
+- Correct
+- Incorrect
+- Unattempted
+- Score
+- Percentage
+- Accuracy
+- Time taken
+
+Example:
+
+```text
+Score
+16 / 20
+
+Percentage
+80%
+
+Correct
+16
+
+Wrong
+3
+
+Unattempted
+1
+
+Accuracy
+84.21%
+```
+
+Show detailed answer review.
+
+Student should be able to see:
+
+Question
+Student answer
+Correct answer
+Explanation
+
+---
+
+# 20. STORE EVERY TEST ATTEMPT
+
+Database must store:
+
+```text
+user_id
+test_id
+started_at
+submitted_at
+score
+total_questions
+correct_answers
+wrong_answers
+unattempted
+percentage
+time_taken
+```
+
+Every attempt must belong to the correct user.
+
+Never mix results between users.
+
+---
+
+# 21. USER TEST HISTORY
+
+Profile/Test History should show:
+
+```text
+Test Name
+Date
+Score
+Percentage
+Accuracy
+```
+
+Student can open previous result.
+
+---
+
+# 22. ADMIN TEST DASHBOARD
+
+Admin should be able to see:
+
+- Total tests
+- Total attempts
+- Student performance
+- Average score
+- Highest score
+- Lowest score
+
+Admin can select a test and see:
+
+```text
+Student Name
+Email
+Score
+Percentage
+Correct
+Wrong
+Time Taken
+Submission Time
+```
+
+The student's **actual registered name** must appear.
+
+Do NOT display:
+
+```text
+User 1
+Student
+Unknown
+undefined
+```
+
+unless the user genuinely has no name.
+
+---
+
+# 23. PROFILE
+
+Profile screen:
+
+- Profile picture
+- Full name
+- Email
+- Mobile
+- My Courses
+- My Tests
+- Test History
+- Progress
+- Settings
+- Logout
+
+Allow user to edit profile.
+
+---
+
+# 24. ADMIN ROLE
+
+Create proper role-based system.
+
+Roles:
+
+```text
+student
+admin
+```
+
+Admin dashboard should only be accessible to admin users.
+
+Backend authorization:
+
+```text
+require_admin()
+```
+
+Do not depend on frontend checks alone.
+
+---
+
+# 25. ADMIN DASHBOARD
+
+Admin dashboard:
+
+```text
+Dashboard
+│
+├── Users
+├── Banners
+├── Courses
+├── Notes
+├── Tests
+├── AI Test Generator
+├── Test Results
+└── Settings
+```
+
+Dashboard statistics:
+
+- Total students
+- Total courses
+- Total notes
+- Total tests
+- Total test attempts
+
+---
+
+# 26. DATABASE DESIGN
+
+Create proper relational database tables.
+
+Minimum:
+
+```text
+users
+courses
+course_chapters
+lessons
+course_progress
+notes
+banners
+tests
+test_questions
+test_attempts
+test_answers
+categories
+```
+
+Use foreign keys.
+
+Use indexes where appropriate.
+
+Use timestamps:
+
+```text
+created_at
+updated_at
+```
+
+Use migrations.
+
+Do NOT use an in-memory database.
+
+---
+
+# 27. API DESIGN
+
+Create clean REST APIs.
+
+Example:
+
+```text
+POST /auth/signup
+POST /auth/login
+POST /auth/refresh
+POST /auth/logout
+GET  /auth/me
+
+GET /courses
+GET /courses/{id}
+POST /admin/courses
+PUT /admin/courses/{id}
+DELETE /admin/courses/{id}
+
+GET /notes
+GET /notes/{id}
+POST /admin/notes
+PUT /admin/notes/{id}
+DELETE /admin/notes/{id}
+
+GET /tests
+GET /tests/{id}
+POST /tests/{id}/start
+POST /tests/{id}/submit
+
+GET /test-attempts
+GET /test-attempts/{id}
+
+POST /admin/tests/generate
+GET /admin/tests
+DELETE /admin/tests/{id}
+
+GET /admin/test-results
+```
+
+Use proper HTTP status codes.
+
+---
+
+# 28. ERROR HANDLING
+
+Every API request must handle:
+
+- Network error
+- 401
+- 403
+- 404
+- 422
+- 429
+- 500
+
+Mobile UI should show proper messages.
+
+Example:
+
+"Unable to load courses. Please try again."
+
+Do not show raw backend errors to users.
+
+---
+
+# 29. LOADING STATES
+
+Every screen that loads data should have:
+
+- Skeleton loader
+- Loading indicator
+- Empty state
+- Error state
+- Retry button
+
+Example:
+
+No courses:
+
+"No courses available right now."
+
+---
+
+# 30. UI/UX
+
+Create premium UI.
+
+Requirements:
+
+- Responsive
+- Smooth animations
+- Proper spacing
+- Modern cards
+- Rounded corners
+- Clear typography
+- Consistent icons
+- Good empty states
+- Skeleton loading
+- Pull to refresh
+
+Use a professional UCI brand system.
+
+Avoid excessive gradients and unnecessary animations.
+
+---
+
+# 31. SEARCH
+
+Implement search for:
+
+### Courses
+
+Search by:
+
+- Course name
+- Subject
+- Exam
+
+### Notes
+
+Search by:
+
+- Note title
+- Subject
+- Exam
+
+### Tests
+
+Search by:
+
+- Test name
+- Topic
+- Subject
+
+Search should use backend/database queries where appropriate.
+
+---
+
+# 32. NOTIFICATIONS ARCHITECTURE
+
+Prepare architecture for notifications.
+
+Future notifications:
+
+- New course
+- New notes
+- New test
+- Test reminder
+- Live class reminder
+
+Use Expo Notifications/Firebase notifications where appropriate.
+
+---
+
+# 33. SECURITY
+
+IMPORTANT.
+
+Never expose:
+
+```text
+OPENAI_API_KEY
+DATABASE_PASSWORD
+JWT_SECRET
+AWS_SECRET
+```
+
+inside React Native.
+
+Use:
+
+```text
+.env
+```
+
+on backend.
+
+Add:
+
+```text
+.env.example
+```
+
+to repository.
+
+Add `.env` to `.gitignore`.
+
+---
+
+# 34. NO HARDCODED DATA
+
+This is extremely important.
+
+Do NOT hardcode:
+
+- Users
+- Passwords
+- Courses
+- Notes
+- Tests
+- Scores
+- Student names
+- Admin credentials
+- Banners
+
+All dynamic data must come from database/backend.
+
+Seed data may be provided only through a proper database seed script.
+
+---
+
+# 35. ADMIN INITIAL SETUP
+
+Create a secure admin creation mechanism.
+
+For development, provide a seed command such as:
+
+```bash
+python -m app.seed_admin
+```
+
+Admin credentials should come from environment variables during initial setup.
+
+Do not put real production credentials into GitHub.
+
+---
+
+# 36. OPENAI INTEGRATION
+
+Create a backend AI service:
+
+```text
+services/openai_service.py
+```
+
+Responsibilities:
+
+- Generate test
+- Validate AI response
+- Retry failed generation
+- Handle API errors
+- Log failures safely
+- Never expose API key
+
+Use structured output/JSON schema where supported.
+
+---
+
+# 37. AI COST CONTROL
+
+Do not call OpenAI from the mobile app.
+
+Only admin test generation should call OpenAI.
+
+Generated tests should be stored in PostgreSQL.
+
+Do not regenerate the same test every time a student opens it.
+
+Once generated:
+
+```text
+AI → Database → Students
+```
+
+---
+
+# 38. IMPORTANT DATA FLOW
+
+Course:
+
+```text
+Admin
+ ↓
+Backend
+ ↓
+PostgreSQL
+ ↓
+Student App
+```
+
+Notes:
+
+```text
+Admin
+ ↓
+Backend
+ ↓
+PostgreSQL
+ ↓
+Student App
+```
+
+AI Test:
+
+```text
+Admin
+ ↓
+Backend
+ ↓
+OpenAI
+ ↓
+Validation
+ ↓
+PostgreSQL
+ ↓
+Student
+```
+
+Test Result:
+
+```text
+Student
+ ↓
+Submit Test
+ ↓
+Backend
+ ↓
+Calculate Result
+ ↓
+PostgreSQL
+ ↓
+Student + Admin
+```
+
+---
+
+# 39. TESTING REQUIREMENTS
+
+Before declaring the project complete, test:
+
+### Authentication
+
+- Signup
+- Login
+- Logout
+- Forgot password
+- Invalid credentials
+- Duplicate account
+- Token expiration
+
+### Courses
+
+- Create
+- Read
+- Update
+- Delete
+- Student viewing
+- Progress
+
+### Notes
+
+- Upload
+- View
+- Delete
+- Search
+
+### Tests
+
+- Generate test
+- Start test
+- Timer
+- Submit
+- Auto-submit
+- Score calculation
+- Result
+- History
+
+### Admin
+
+- Authorization
+- CRUD
+- Student results
+
+---
+
+# 40. SCORE CALCULATION
+
+Do score calculation on the backend.
+
+Never trust a score sent by the mobile app.
+
+The mobile app should send answers:
+
+```json
+{
+  "answers": [
+    {
+      "question_id": 1,
+      "selected_option": 2
+    }
+  ]
+}
+```
+
+Backend compares answers with correct answers stored in database.
+
+Then calculates:
+
+```text
+correct
+wrong
+unattempted
+score
+percentage
+accuracy
+```
+
+---
+
+# 41. PREVENT BASIC CHEATING
+
+Implement reasonable protections:
+
+- Server-side timer
+- Server-side scoring
+- One active attempt per test
+- Submission validation
+- Do not send correct answers before submission
+- Do not include correct answer in normal test API response
+
+VERY IMPORTANT:
+
+When student starts a test, API response must NOT contain:
+
+```text
+correctAnswer
+```
+
+Correct answers should remain server-side.
+
+---
+
+# 42. CODE QUALITY
+
+Use:
+
+- TypeScript strict mode
+- Clean architecture
+- Reusable components
+- Reusable API service
+- Environment configuration
+- Proper folder structure
+- No duplicate code
+- No unnecessary dependencies
+
+Add comments only where useful.
+
+---
+
+# 43. PROJECT STRUCTURE
+
+Use a structure similar to:
+
+```text
+uci-app/
+│
+├── mobile/
+│   ├── app/
+│   │   ├── (auth)/
+│   │   ├── (tabs)/
+│   │   ├── courses/
+│   │   ├── notes/
+│   │   ├── tests/
+│   │   ├── profile/
+│   │   └── admin/
+│   │
+│   ├── components/
+│   ├── hooks/
+│   ├── services/
+│   ├── store/
+│   ├── types/
+│   └── utils/
+│
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   ├── services/
+│   │   ├── repositories/
+│   │   ├── core/
+│   │   └── main.py
+│   │
+│   ├── migrations/
+│   ├── tests/
+│   ├── .env.example
+│   └── requirements.txt
+│
+└── README.md
+```
+
+---
+
+# 44. FINAL QUALITY CHECK
+
+Before saying the project is complete, perform a complete audit.
+
+Check:
+
+1. Does signup actually create a database user?
+2. Does login actually authenticate against the database?
+3. Is password hashed?
+4. Does logout work?
+5. Are protected routes protected?
+6. Is admin authorization enforced by backend?
+7. Are courses dynamic?
+8. Are notes dynamic?
+9. Can admin CRUD courses?
+10. Can admin CRUD notes?
+11. Can admin create AI tests?
+12. Does OpenAI response validation work?
+13. Are correct answers hidden from students?
+14. Does timer work?
+15. Does auto-submit work?
+16. Is score calculated on backend?
+17. Does every result belong to the correct user?
+18. Does the actual student name appear correctly?
+19. Can admin see test results?
+20. Can students see their own results?
+21. Is there any hardcoded user?
+22. Is there any hardcoded password?
+23. Is there any hardcoded API key?
+24. Is OPENAI_API_KEY hidden from mobile?
+25. Are loading/error/empty states implemented?
+26. Does the app work after restart?
+27. Does authentication persist correctly?
+28. Does logout clear authentication?
+29. Does database migration work from a clean setup?
+30. Does the project run from the README instructions?
+
+Fix every issue found.
+
+Do not simply report issues.
+
+Fix them.
+
+---
+
+# 45. DELIVERABLE
+
+At the end provide:
+
+1. Complete React Native source code
+2. Complete FastAPI backend
+3. PostgreSQL schema/migrations
+4. Admin dashboard
+5. AI test generation
+6. Authentication
+7. Courses
+8. Notes
+9. Tests
+10. Test results
+11. `.env.example`
+12. API documentation
+13. README
+14. Setup instructions
+15. Testing instructions
+16. Production deployment instructions
+
+The final application must be runnable with:
+
+```bash
+npm install
+npx expo start
+```
+
+and backend:
+
+```bash
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+Make sure there are no broken imports, missing files, fake APIs, hardcoded authentication, placeholder functionality, or unfinished screens.
+
+Do not claim the project is complete until the entire authentication → courses → notes → AI test generation → test attempt → result → admin result flow has been verified.
+
+Build the application incrementally, test each module, fix errors, and then perform the final end-to-end audit.

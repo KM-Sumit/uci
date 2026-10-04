@@ -1,0 +1,24 @@
+kind = "mobile"
+previewPath = "/"
+title = "UCI Government Exam Preparation"
+description = "A mobile learning app for students preparing for Indian government competitive examinations, with courses, notes, mock tests, progress tracking, and an admin-ready content structure."
+version = "1.0.0"
+id = "artifacts/uci-education"
+router = "expo-domain"
+
+[[services]]
+name = "expo"
+ensurePreviewReachable = "/status"
+paths = [ "/" ]
+localPort = 18941
+
+[services.development]
+run = "pnpm --filter @workspace/uci-education run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/uci-education", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/uci-education", "run", "serve" ]
+
+[services.env]
+PORT = "18941"
+BASE_PATH = "/"
