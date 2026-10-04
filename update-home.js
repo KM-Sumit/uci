@@ -1,4 +1,6 @@
-import React from "react";
+const fs = require('fs');
+
+const content = `import React from "react";
 import { Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Feather, Ionicons } from "@expo/vector-icons";
@@ -117,7 +119,7 @@ export default function HomeScreen() {
         {resultsQuery.isLoading ? <LoadingState label="Loading results…" /> : null}
         {!resultsQuery.isLoading && results.length === 0 ? <EmptyState title="No submissions yet" description="Student test results will appear here." /> : null}
         {results.slice(0, 8).map((r, i) => (
-          <Panel key={`${r.email}-${i}`} style={styles.resultCard}>
+          <Panel key={\`\${r.email}-\${i}\`} style={styles.resultCard}>
             <View style={[styles.resAvatar, { backgroundColor: colors.accent }]}>
               <Text style={[styles.resAvatarText, { color: colors.accentForeground }]}>{(r.studentName ?? "?").slice(0, 1).toUpperCase()}</Text>
             </View>
@@ -188,7 +190,7 @@ export default function HomeScreen() {
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.courseTitle, { color: colors.foreground }]}>{home.continueLearning.courseTitle}</Text>
                     <Text numberOfLines={1} style={[styles.smallText, { color: colors.mutedForeground }]}>
-                      {home.continueLearning.lastLesson ? `Last lesson · ${home.continueLearning.lastLesson}` : "Continue your course"}
+                      {home.continueLearning.lastLesson ? \`Last lesson · \${home.continueLearning.lastLesson}\` : "Continue your course"}
                     </Text>
                   </View>
                   <Text style={[styles.progressValue, { color: colors.primary }]}>{home.continueLearning.progress}%</Text>
@@ -289,3 +291,7 @@ const styles = StyleSheet.create({
   noteRow: { flexDirection: "row", alignItems: "center", gap: 12, borderRadius: 18, borderWidth: 1, padding: 12, marginBottom: 9 },
   noteIcon: { width: 38, height: 38, borderRadius: 13, alignItems: "center", justifyContent: "center" },
 });
+`;
+
+fs.writeFileSync('artifacts/uci-education/app/(tabs)/home.tsx', content, 'utf8');
+console.log('Fixed home.tsx');

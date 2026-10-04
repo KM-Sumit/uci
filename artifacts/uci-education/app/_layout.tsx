@@ -18,9 +18,11 @@ import { AuthProvider, AuthRouteGate } from '@/store/auth';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-if (process.env.EXPO_PUBLIC_DOMAIN) {
-  setBaseUrl(`https://${process.env.EXPO_PUBLIC_DOMAIN}`);
-}
+const apiDomain = process.env.EXPO_PUBLIC_DOMAIN || '10.229.196.10:5000';
+const apiBaseUrl = apiDomain.startsWith('http://') || apiDomain.startsWith('https://')
+  ? apiDomain
+  : `http://${apiDomain}`;
+setBaseUrl(apiBaseUrl);
 
 const queryClient = new QueryClient();
 
@@ -35,6 +37,9 @@ function RootLayoutNav() {
       <Stack.Screen name="test/[id]" />
       <Stack.Screen name="result/[id]" />
       <Stack.Screen name="admin" />
+      <Stack.Screen name="admin-add-course" />
+      <Stack.Screen name="admin-add-note" />
+      <Stack.Screen name="admin-generate-test" />
     </Stack>
     </AuthRouteGate>
   );

@@ -574,6 +574,194 @@ adminRouter.get("/results", async (_req, res) => {
   }
 });
 
+// Admin Scoreboard: all test results grouped by test
+adminRouter.get("/scoreboard", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT t.id AS "testId", t.title AS "testTitle", t.subject, t.topic, t.difficulty,
+              u.name AS "studentName", u.email,
+              a.id AS "attemptId",
+              a.score, a.total_questions AS "totalQuestions",
+              a.correct_answers AS "correct", a.wrong_answers AS "wrong",
+              a.unattempted, a.percentage, a.accuracy,
+              a.time_taken_seconds AS "timeTakenSeconds",
+              a.submitted_at AS "submittedAt"
+       FROM test_attempts a
+       JOIN users u ON u.id = a.user_id
+       JOIN tests t ON t.id = a.test_id
+       WHERE a.submitted_at IS NOT NULL
+       ORDER BY t.id, a.percentage DESC, a.submitted_at DESC`,
+    );
+    res.json({ scoreboard: result.rows });
+  } catch (error) {
+    sendServerError(res, error);
+  }
+});
+
+// Admin: Generate Test via OpenAI GPT
+adminRouter.post("/generate-test", async (req, res) => {
+  const topic = typeof req.body?.topic === "string" ? req.body.topic.trim() : "";
+  const subject = typeof req.body?.subject === "string" ? req.body.subject.trim() : "General Knowledge";
+  const difficulty = typeof req.body?.difficulty === "string" ? req.body.difficulty.trim() : "Medium";
+  const questionCount = Number.isInteger(req.body?.questionCount) ? Math.min(20, Math.max(3, req.body.questionCount)) : 10;
+  const durationMinutes = Number.isInteger(req.body?.durationMinutes) ? Math.min(60, Math.max(5, req.body.durationMinutes)) : 15;
+
+  if (!topic) {
+    res.status(422).json({ message: "Topic is required to generate a test." });
+    return;
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    res.status(503).json({ message: "Gemini API key is not configured on the server. Set GEMINI_API_KEY environment variable." });
+    return;
+  }
+
+  try {
+    const prompt = `Generate a multiple choice quiz with exactly ${questionCount} questions on the topic: "${topic}" for subject "${subject}".
+Difficulty level: ${difficulty}.
+IMPORTANT: Respond with ONLY valid JSON. No markdown, no backticks, no explanation.
+Format exactly like this:
+{
+  "title": "short quiz title here",
+  "questions": [
+    {
+      "prompt": "Question text here?",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctIndex": 0,
+      "explanation": "Brief explanation why Option A is correct."
+    }
+  ]
+}
+Rules:
+- Exactly ${questionCount} questions
+- Each question has exactly 4 options
+- correctIndex is 0-3 (0=first option)
+- All questions must be about: ${topic}
+- Difficulty: ${difficulty}`;
+
+    const gptResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: "You are an expert exam question creator. Always respond with valid JSON only." }] },
+        contents: [
+          { role: "user", parts: [{ text: prompt }] },
+        ],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.7,
+        },
+      }),
+    });
+
+    if (!gptResponse.ok) {
+      const errText = await gptResponse.text();
+      res.status(502).json({ message: `Gemini API error: ${gptResponse.status}. ${errText.slice(0, 200)}` });
+      return;
+    }
+
+    const gptData = await gptResponse.json() as any;
+    const rawContent = gptData.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+
+    let parsed: { title: string; questions: Array<{ prompt: string; options: string[]; correctIndex: number; explanation: string }> };
+    try {
+      const cleaned = rawContent.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      parsed = JSON.parse(cleaned);
+    } catch {
+      res.status(502).json({ message: "GPT returned invalid JSON. Please try again." });
+      return;
+    }
+
+    if (!parsed.title || !Array.isArray(parsed.questions) || parsed.questions.length === 0) {
+      res.status(502).json({ message: "GPT response missing required fields. Please try again." });
+      return;
+    }
+
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const testInsert = await client.query<{ id: number }>(
+        `INSERT INTO tests (title, subject, topic, question_count, duration_minutes, difficulty, published)
+         VALUES ($1, $2, $3, $4, $5, $6, true)
+         RETURNING id`,
+        [parsed.title, subject, topic, parsed.questions.length, durationMinutes, difficulty],
+      );
+      const testId = testInsert.rows[0]!.id;
+
+      for (let i = 0; i < parsed.questions.length; i++) {
+        const q = parsed.questions[i]!;
+        await client.query(
+          `INSERT INTO test_questions (test_id, prompt, options, correct_index, explanation, topic, difficulty, sort_order)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [testId, q.prompt, JSON.stringify(q.options), q.correctIndex, q.explanation ?? "", topic, difficulty, i],
+        );
+      }
+      await client.query("COMMIT");
+      res.status(201).json({ testId, title: parsed.title, questionCount: parsed.questions.length, topic, subject, difficulty, durationMinutes });
+    } catch (dbError) {
+      await client.query("ROLLBACK");
+      throw dbError;
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    sendServerError(res, error);
+  }
+});
+
+// Admin: Create Course
+adminRouter.post("/courses", async (req, res) => {
+  const title = typeof req.body?.title === "string" ? req.body.title.trim() : "";
+  const description = typeof req.body?.description === "string" ? req.body.description.trim() : "";
+  const instructor = typeof req.body?.instructor === "string" ? req.body.instructor.trim() : "UCI Faculty";
+  const exam = typeof req.body?.exam === "string" ? req.body.exam.trim() : "SSC";
+  const category = typeof req.body?.category === "string" ? req.body.category.trim() : "SSC";
+  const thumbnailUrl = typeof req.body?.thumbnailUrl === "string" ? req.body.thumbnailUrl.trim() : "";
+
+  if (!title) {
+    res.status(422).json({ message: "Course title is required." });
+    return;
+  }
+  try {
+    const result = await pool.query<{ id: number }>(
+      `INSERT INTO courses (title, description, instructor, exam, category, thumbnail_url, published)
+       VALUES ($1, $2, $3, $4, $5, $6, true) RETURNING id`,
+      [title, description, instructor, exam, category, thumbnailUrl],
+    );
+    res.status(201).json({ courseId: result.rows[0]!.id, title });
+  } catch (error) {
+    sendServerError(res, error);
+  }
+});
+
+// Admin: Create Note
+adminRouter.post("/notes", async (req, res) => {
+  const title = typeof req.body?.title === "string" ? req.body.title.trim() : "";
+  const description = typeof req.body?.description === "string" ? req.body.description.trim() : "";
+  const body = typeof req.body?.body === "string" ? req.body.body.trim() : "";
+  const subject = typeof req.body?.subject === "string" ? req.body.subject.trim() : "";
+  const exam = typeof req.body?.exam === "string" ? req.body.exam.trim() : "";
+  const pdfUrl = typeof req.body?.pdfUrl === "string" ? req.body.pdfUrl.trim() : "";
+
+  if (!title || !subject || !exam) {
+    res.status(422).json({ message: "Title, subject and exam are required." });
+    return;
+  }
+  try {
+    const result = await pool.query<{ id: number }>(
+      `INSERT INTO notes (title, description, body, subject, exam, pdf_url, published)
+       VALUES ($1, $2, $3, $4, $5, $6, true) RETURNING id`,
+      [title, description, body, subject, exam, pdfUrl],
+    );
+    res.status(201).json({ noteId: result.rows[0]!.id, title });
+  } catch (error) {
+    sendServerError(res, error);
+  }
+});
+
 router.use("/admin", adminRouter);
 
 export default router;
