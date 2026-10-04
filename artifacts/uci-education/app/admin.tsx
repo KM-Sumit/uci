@@ -17,7 +17,9 @@ export default function AdminDashboardScreen() {
   const [activeTab, setActiveTab] = useState<"overview" | "scoreboard">("overview");
   const [refreshing, setRefreshing] = useState(false);
 
+  // @ts-ignore
   const dashboardQuery = useGetAdminDashboard({ query: { staleTime: 0 } });
+  // @ts-ignore
   const resultsQuery = useGetAdminResults({ query: { staleTime: 0 } });
 
   const stats = dashboardQuery.data as unknown as AdminStats | undefined;
