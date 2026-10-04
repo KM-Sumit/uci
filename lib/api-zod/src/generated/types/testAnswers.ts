@@ -5,7 +5,8 @@
  * UCI education app API
  * OpenAPI spec version: 0.1.0
  */
+import type { TestAnswersAnswers } from './testAnswersAnswers';
 
-export interface HealthStatus {
-  status: string;
+export interface TestAnswers {
+  answers: TestAnswersAnswers;
 }

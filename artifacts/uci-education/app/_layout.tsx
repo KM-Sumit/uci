@@ -13,17 +13,30 @@ import {
 } from '@expo-google-fonts/inter';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { setBaseUrl } from '@workspace/api-client-react';
+import { AuthProvider, AuthRouteGate } from '@/store/auth';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+if (process.env.EXPO_PUBLIC_DOMAIN) {
+  setBaseUrl(`https://${process.env.EXPO_PUBLIC_DOMAIN}`);
+}
 
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
   return (
-    <Stack screenOptions={{ headerBackTitle: 'Back' }}>
+    <AuthRouteGate>
+    <Stack screenOptions={{ headerBackTitle: 'Back', headerShown: false }}>
+      <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="course/[id]" />
+      <Stack.Screen name="note/[id]" />
+      <Stack.Screen name="test/[id]" />
+      <Stack.Screen name="result/[id]" />
+      <Stack.Screen name="admin" />
     </Stack>
+    </AuthRouteGate>
   );
 }
 
@@ -49,7 +62,9 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <GestureHandlerRootView>
             <KeyboardProvider>
-              <RootLayoutNav />
+              <AuthProvider>
+                <RootLayoutNav />
+              </AuthProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>
         </QueryClientProvider>

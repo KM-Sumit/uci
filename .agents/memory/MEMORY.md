@@ -1,0 +1,2 @@
+- [Expo auth storage](expo-auth-storage.md) — Keep mobile tokens in SecureStore and use a browser-session fallback on web.
+- [Scoped workspace dependencies](monorepo-package-installs.md) — Use the target workspace package when a root-level dependency install is rejected.

@@ -1,22 +1,22 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: UCI education app API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: auth
+  - name: student
+  - name: admin
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
-      summary: Health check
-      description: Returns server health status
+      summary: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +24,346 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /auth/signup:
+    post:
+      operationId: signUp
+      tags: [auth]
+      summary: Create a student account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegistrationInput"
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSession"
+        "409":
+          description: Account already exists
+  /auth/login:
+    post:
+      operationId: logIn
+      tags: [auth]
+      summary: Authenticate a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSession"
+  /auth/logout:
+    post:
+      operationId: logOut
+      tags: [auth]
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: Session ended
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPayload"
+  /student/home:
+    get:
+      operationId: getStudentHome
+      tags: [student]
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Student home content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
+  /courses:
+    get:
+      operationId: getCourses
+      tags: [student]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: exam
+          schema: { type: string }
+      responses:
+        "200":
+          description: Published courses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
+  /courses/{id}:
+    get:
+      operationId: getCourse
+      tags: [student]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Course and lessons
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
+  /lessons/{id}/complete:
+    post:
+      operationId: completeLesson
+      tags: [student]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Progress saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
+  /notes:
+    get:
+      operationId: getNotes
+      tags: [student]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: subject
+          schema: { type: string }
+      responses:
+        "200":
+          description: Published notes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
+  /notes/{id}:
+    get:
+      operationId: getNote
+      tags: [student]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Published study note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
+  /tests:
+    get:
+      operationId: getTests
+      tags: [student]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+      responses:
+        "200":
+          description: Published tests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
+  /tests/{id}:
+    get:
+      operationId: getTest
+      tags: [student]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Test without answer key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
+  /tests/{id}/start:
+    post:
+      operationId: startTest
+      tags: [student]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "201":
+          description: Test attempt started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
+  /test-attempts:
+    get:
+      operationId: getTestAttempts
+      tags: [student]
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Current student's test history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
+  /test-attempts/{id}:
+    get:
+      operationId: getTestAttempt
+      tags: [student]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Submitted test review
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
+  /test-attempts/{id}/submit:
+    post:
+      operationId: submitTest
+      tags: [student]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TestAnswers"
+      responses:
+        "200":
+          description: Server-calculated test result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
+  /admin/dashboard:
+    get:
+      operationId: getAdminDashboard
+      tags: [admin]
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Admin summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
+  /admin/results:
+    get:
+      operationId: getAdminResults
+      tags: [admin]
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Student test results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPayload"
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     HealthStatus:
       type: object
       properties:
-        status:
-          type: string
-      required:
-        - status
-
+        status: { type: string }
+      required: [status]
+    RegistrationInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        email: { type: string, format: email }
+        mobile: { type: string, minLength: 10 }
+        password: { type: string, minLength: 8 }
+      required: [name, email, mobile, password]
+    LoginBody:
+      type: object
+      properties:
+        identifier: { type: string }
+        password: { type: string }
+      required: [identifier, password]
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        mobile: { type: string }
+        role: { type: string, enum: [student, admin] }
+      required: [id, name, email, mobile, role]
+    AuthSession:
+      type: object
+      properties:
+        token: { type: string }
+        expiresIn: { type: integer }
+        user: { $ref: "#/components/schemas/User" }
+      required: [token, expiresIn, user]
+    UserPayload:
+      type: object
+      properties:
+        user: { $ref: "#/components/schemas/User" }
+      required: [user]
+    TestAnswers:
+      type: object
+      properties:
+        answers:
+          type: object
+          additionalProperties:
+            type: [integer, "null"]
+      required: [answers]
+    GenericPayload:
+      type: object
+      additionalProperties: true
