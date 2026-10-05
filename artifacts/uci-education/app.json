@@ -17,15 +17,18 @@
     "web": {
       "favicon": "./assets/images/icon.png"
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router"
+    ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
     "extra": {
       "eas": {
-        "projectId": "uci-education"
+        "projectId": "887d80b6-0dbb-47c3-9c34-77ed4988bcb7"
       }
-    }
+    },
+    "owner": "sumit122"
   }
 }
